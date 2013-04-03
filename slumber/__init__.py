@@ -104,6 +104,9 @@ class Resource(ResourceAttributesMixin, object):
 
         resp = self._store["session"].request(method, url, data=data, params=params, files=files, headers=headers)
 
+        if self._store["debug"]:
+            self._handle_debug(resp)
+
         if 400 <= resp.status_code <= 499:
             raise exceptions.HttpClientError("Client Error %s: %s" % (resp.status_code, url), response=resp, content=resp.content)
         elif 500 <= resp.status_code <= 599:
@@ -112,6 +115,11 @@ class Resource(ResourceAttributesMixin, object):
         self._ = resp
 
         return resp
+
+    def _handle_debug(self, resp):
+        print 'DEBUG'
+        print 'Status:', resp.status_code, '|', resp.headers
+        print resp.content
 
     def _handle_redirect(self, resp, **kwargs):
         # @@@ Hacky, see description in __call__
